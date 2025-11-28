@@ -1,4 +1,4 @@
-# 🚀 **Agente de IA Generativa con RAG + Memoria + Cloud Run**
+# 🚀 **Despliegue de Agente IA Generativa en Productivo**
 
 ### *Despliegue real en producción usando Flask, LangGraph, LlamaIndex, Elasticsearch y PostgreSQL*
 
@@ -16,12 +16,12 @@ producción** un **agente de IA generativa profesional**, utilizando:
 
 # 🧠 Visión de negocio
 
-En escenarios reales, un agente productivo requiere:
+En escenarios reales, un agente para ser lanzado en productivo requiere:
 
 ✔ Conocimiento privado (RAG)✔ Memoria por usuario (PostgreSQL)✔
 Escalabilidad (Cloud Run)✔ Observabilidad (LangSmith)✔ API REST segura
 
-Este template implementa exactamente lo que se usa en producción.
+Este template implementa un modelo de como lanzar un agente en ambiente productivo.
 
 ------------------------------------------------------------------------
 
@@ -68,24 +68,105 @@ El RAG consulta tus documentos indexados.
 
 ## 🟦 app.py --- Lógica del agente
 
-Incluye:
+## ✅ **1. Configuración de Librerías Necesarias**
 
-### ✔ Servidor Flask
+Estas importaciones permiten construir el agente, servirlo vía API y
+conectarlo a los servicios:
 
-Endpoints: - `/` -\> healthcheck - `/agent` -\> ejecución del agente
+-   **Flask** → crea un **servidor web** para exponer el agente como
+    endpoint.
+-   **LangGraph / LangChain** → librerías que permiten construir agentes
+    inteligentes.
+-   **LlamaIndex** → para hacer **RAG**, conectarse a Elasticsearch y
+    recuperar contexto.
+-   **PostgreSQL (psycopg)** → usado para **memoria persistente** del
+    agente.
+-   **ElasticSearch** → almacena y busca embeddings de texto.
 
-### ✔ Herramienta RAG con LlamaIndex
+Cada una es fundamental para que el agente responda con memoria,
+contexto y razonamiento.
+
+------------------------------------------------------------------------
+
+## ✅ **2. Configuración de las Credenciales**
+
+Aquí se cargan variables como:
+
+-   `OPENAI_API_KEY`
+-   `POSTGRES_HOST`, `USER`, `PASSWORD`
+-   `ELASTIC_URL`, `ELASTIC_USER`, `ELASTIC_PASSWORD`
+
+**¿Para qué sirven?**
+
+  Variable        Propósito
+  --------------- -----------------------------------------------
+  OpenAI key      Permite llamar al modelo del agente
+  PostgreSQL      Guarda la memoria del agente (chat histórico)
+  Elasticsearch   Permite hacer RAG (búsqueda semántica)
+  Flask PORT      Cloud Run asigna un puerto dinámico
+
+**Por qué es importante**\
+Esto hace que **el agente pueda razonar (modelo), recordar (Postgres) y
+buscar información (Elastic)**.
+
+------------------------------------------------------------------------
+
+## ✅ **3. Servidor Flask --- API del Agente**
+
+El servidor expone dos endpoints:
+
+### \### 🟢 `/` --- Healthcheck
+
+Sirve para que Cloud Run confirme que el servicio está vivo.
+
+### 🟢 `/agent` --- Endpoint Principal
+
+Recibe:
+
+``` json
+{
+  "message": "tu consulta",
+  "thread_id": "user123"
+}
+```
+
+Y retorna la respuesta del agente.
+
+**Para qué sirve Flask aquí:**\
+👉 Convierte tu agente en una **API HTTP real**, que puede ser consumida
+por un frontend, bot, app móvil o integración empresarial.\
+👉 Es la forma correcta de desplegar agentes en **producción**.
+
+------------------------------------------------------------------------
+
+## ✅ **4. Herramienta RAG con LlamaIndex**
+
+El código configura el vector store:
 
 ``` python
 vector_store = LE(
-    es_url="tu url",
-    es_user="tu user",
-    es_password="tu key",
-    index_name="tu index",
+    es_url="URL",
+    es_user="USER",
+    es_password="KEY",
+    index_name="INDEX",
 )
 ```
 
-### ✔ Agente ReAct con memoria
+**Qué hace esta herramienta:**
+
+-   Conecta con Elasticsearch.
+-   Busca documentos relevantes usando embeddings.
+-   Retorna contexto para que el agente pueda responder mejor.
+
+**En producción**\
+Esto permite hacer **respuestas basadas en tu propia base de
+conocimiento corporativa**.
+
+------------------------------------------------------------------------
+
+## ✅ **5. Agente ReAct con Memoria**
+
+El agente se crea así:
 
 ``` python
 agent = create_react_agent(
@@ -96,11 +177,58 @@ agent = create_react_agent(
 )
 ```
 
-### ✔ Memoria por thread_id
+### ✔ ¿Qué es un agente ReAct?
 
-Cada usuario puede tener un historial persistente.
+Un agente que puede:
+
+-   **Razonar**
+-   **Planear**
+-   **Tomar acciones (usar herramientas)**
+-   **Responder**
+
+Es el tipo usado en producción por empresas.
+
+### ✔ ¿Qué hace cada componente?
+
+  Componente       Rol
+  ---------------- ----------------------------------------
+  `model`          El cerebro (GPT o similar)
+  `tools`          RAG, consultas, acciones
+  `prompt`         Define su personalidad e instrucciones
+  `checkpointer`   Guarda la memoria por thread
 
 ------------------------------------------------------------------------
+
+## ✅ **6. Memoria por `thread_id`**
+
+El agente guarda el historial de cada usuario en PostgreSQL.\
+Ejemplo:
+
+-   Usuario A → `thread_id=A123`
+-   Usuario B → `thread_id=B555`
+
+Cada uno mantiene su propio contexto.
+
+**¿Por qué es clave en producción?**
+
+-   Soporta miles de usuarios.
+-   Memoria persistente.
+-   Conversaciones separadas.
+
+------------------------------------------------------------------------
+
+## 🏁 Conclusión
+
+Este `app.py` no es solo un archivo:\
+Es una arquitectura completa **lista para producción** con:
+
+✔ API Flask\
+✔ RAG con Elasticsearch\
+✔ Memoria con PostgreSQL\
+✔ Agente ReAct empresarial\
+✔ Despliegue en Cloud Run
+
+----------------------------------------------------------------------
 
 ## 🟩 requirements.txt
 
