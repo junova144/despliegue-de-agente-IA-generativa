@@ -1,0 +1,24 @@
+--Toma el código de tu carpeta actual
+--Construye una imagen Docker usando Cloud Build
+--Sube esa imagen al registro de contenedores GCR (Google Container Registry)
+--Le pone la etiqueta latest
+--es decir: Empaqueta la app,  la construye y la sube al repositorio de imágenes.
+code:
+gcloud builds submit --tag gcr.io/pe-westeros-dev-datalake/talleria:latest
+
+
+--Crea o actualiza un servicio de Cloud Run
+--Lo despliega en modo Cloud Run totalmente gestionado
+--Lo ejecuta en la región us-west4
+--Permite acceso público(--allow-unauthenticated) cualquiera puede acceder
+--es decir: Publica la app en Cloud Run usando la nueva imagen
+code
+gcloud run deploy apicloudia \
+  --image=gcr.io/pe-westeros-dev-datalake/talleria:latest \
+  --platform=managed \
+  --region=us-west4 \
+  --allow-unauthenticated
+
+
+-link construido de acceso a la app
+https://apicloudia-256134804304.us-west4.run.app/agent?msg=de%20que-trata-el-elemento&id=123
