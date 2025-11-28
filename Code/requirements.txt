@@ -1,0 +1,14 @@
+Flask==2.0.1
+gunicorn==20.1.0
+psycopg[binary,pool]==3.2.6
+werkzeug==2.0.3
+elasticsearch
+langchain
+langchain-core
+langchain-community
+langchain-openai
+langchain-elasticsearch
+langgraph
+langgraph-checkpoint-postgres
+llama_index
+llama-index-vector-stores-elasticsearch
